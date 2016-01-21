@@ -1,0 +1,101 @@
+---
+title: "LOH_H2O2_20160121_summary"
+author: "h qin"
+date: "January 21, 2016"
+output: html_document
+---
+20160121, start to port old R codes into a markdown file. 
+
+2013 Dec 9, using results from _3b.2013Dec9.summarizeFitting.H2O2LOH.R
+
+2013Nov25, use summarized results from _3.*R, which contains standard deviations.  
+
+2008 CLS data uses M14, 2013H2O2 uses SGU57, so only 10 strains overlaps
+
+Use 2013 fitting results and gnls reults: 
+2013Nov14, use correlated regression;  Reverse L0 axis in plot, 2012 July 30
+
+2012Feb25, Tg.vs.Tc ~ ln(R0) + G
+
+Partial correlations are all negative, what does this mean? Of couse, they should be negative correlations. 
+
+ Tg/Tc is a measure of ability to maintian recombiation rate during aging
+
+
+```{r}
+rm( list = ls() );
+setwd("~/github/LOH_H2O2_2016/analysis")
+```
+
+Load 2013 H2O2-LOH results
+```{r}
+ list.files(pattern="csv", path='output')
+ tb2 = read.csv("output/LOHH2O2_averaged20131210_v1.csv") 
+```
+
+ 
+Load previous LOH-CLS results, Qin Plos One 2008
+```{r}
+#tb = read.table("summary.new.by.strain.csv", header=T, sep="\t");
+ tb = read.table("021307.summary.by.strain.csv", header=T, sep="\t");
+ tb.old = tb;
+ labels = names( tb.old );
+ tb = tb.old[, c("strain","ARLS","R0","G","CLS","Tc", "Tg","Tmmax","Tbmax", "Td", "Tdmax","TLmax","Lmax", 
+ "b.max", "b.min", "strains", "L0.all", "L0.small" , "Pbt0","Pb0.5t0", "Pbt0.b") ];
+ tb$CLS.vs.Tc = tb$CLS / tb$Tc; 
+ tb$Tg.vs.Tc = tb$Tg / tb$Tc;
+ tb$strain = as.character(tb$strain)
+ tb.old = tb;
+ tb = tb.old[1:13,] #remove rad52DD
+ tb.test = tb[1:11,]   
+```
+
+```{r}
+ summary(lm(Tg.vs.Tc ~ ARLS, data=tb.test)) #re-run the old results, just to double-check
+ plot( tb.test$Tg.vs.Tc ~ tb.test$ARLS )
+ text(tb.test$ARLS, tb.test$Tg.vs.Tc, tb.test$strains)
+ summary(lm( 1/Tg.vs.Tc ~ ARLS, data=tb.test)) #good, negative, p=0.012 
+```
+
+
+Load exg06 data
+ ```{r}
+ nat = read.table("062705.rls.cls.tab", sep="\t", header=T, colClasses=c("character", rep(NA,4)) );
+```
+
+Merge tb and tb2, and do some regression. 
+```{r}
+ tb2$strain = tb2$strains
+ #tb3a = merge(tb, tb2, by='strain', all=T)
+ tb3 = merge(tb, tb2, by='strain')
+ tb3 = tb3[ , -(grep('strains', names(tb3))) ]
+ 
+ #remove BY4743, will increae p-value
+ #tb3 = tb3[ tb3$strain != "BY4743", ]
+ summary(lm(tb3$Cv.vs.Cb ~ tb3$ARLS)) #p 0.078
+ summary(lm(tb3$Cb.vs.Cv ~ tb3$ARLS)) #p 0.039
+
+ #summary(lm(  tb3$ARLS ~ tb3$CvManu * tb3$CbManu )) 
+
+```
+
+
+ Regression analysis 
+```{r}
+ pTb = 1: length(tb3[1,])
+ names(pTb) = names(tb3)
+ for( j in c(2:41) ) {
+   #m = lm( tb3a[, j] ~ tb3a$ARLS, na.rm=T)
+   m = lm( tb3[, j] ~ tb3$Cb.vs.Cv, na.rm=T)
+   #m = lm( tb3a[, j] ~ tb3a$CvMean, na.rm=T)
+   #m = lm( tb3a[, j] ~ tb3a$CbMean, na.rm=T)
+   sm = summary(m)
+   pTb[j] = 1 - pf(sm$fsta[1], sm$fsta[2], sm$fsta[3])
+ }
+ pTb[pTb<0.05]
+ 
+ #ARLS       L0.all    CLS.vs.Tc        CvSTD     bminH2O2     bmaxH2O2     Cv.vs.Cb Cv.vs.Cb.STD     Cb.vs.Cv 
+ #0.0392109400 0.0078946548 0.0354310798 0.0757766416 0.0139759187 0.0047376191 0.0001815387 0.0362846069 0.0000000000  
+```
+
+
