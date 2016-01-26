@@ -87,7 +87,7 @@ arrows( tbf$H2O2, (tbf$s - tbf$s.sd), tbf$H2O2, (tbf$s + tbf$s.sd), length=0.1, 
 axis( 4, at=pretty(c(0, 1.2)), col='black')
 legend ( max(H2O2)*0.7, 0.9, c("viability","black"), col=c("blue","black"), lty=c(2,1), pch=c(1,16) )
 par(new=T)
-plot( tbf$Black ~ tbf$H2O2, pch=16, xlab='H2O2',ylab="black", ylim=c(-0.01, max(tbf$Black)*3))
+plot( tbf$Black ~ tbf$H2O2, pch=16, xlab='H2O2',ylab="black", ylim=c(-0.01, max(tbf$Black, na.rm = T)*3))
 lines(tbf$Black ~ tbf$H2O2)
 bottoms = tbf$Black -tbf$Black.sd
 bottoms[bottoms<0]= 0.001 
