@@ -119,8 +119,13 @@ lines( tbf$s ~ tbf$H2O2, col="blue",lty=2)
 axis( 4, at=pretty(c(0, 1.2)))
 legend ( max(H2O2)*0.7, 0.5, c("viability","half-black"), col=c("blue","red"), lty=c(2,1), pch=c(1,16) )
 par(new=T)
-plot( tbf$halfBlack ~ tbf$H2O2, pch=16, xlab='H2O2',ylab="half-black", col='red')
+plot( tbf$halfBlack ~ tbf$H2O2, pch=16, xlab='H2O2',ylab="half-black", col='red', ylim=c(-0.005, max(tbf$halfBlack, na.rm=T)*2 ))
 lines(tbf$halfBlack ~ tbf$H2O2, col='red')
+
+bottoms = tbf$halfBlack - tbf$halfBlack.sd
+bottoms[bottoms<0]= 0
+arrows( tbf$H2O2, bottoms, tbf$H2O2, (tbf$halfBlack + tbf$halfBlack.sd), length=0.1, angle=90,code=3, lty=1, col="gray" );
+
 title(mylabel)
 
 
@@ -133,6 +138,8 @@ legend ( max(H2O2)*0.7, 0.5, c("viability","half/full"), col=c("blue","green"), 
 par(new=T)
 plot( tbf$half.vs.full ~ tbf$H2O2, pch=16, xlab='H2O2',ylab="half/full", col='green')
 lines(tbf$half.vs.full ~ tbf$H2O2, col='green')
+bottoms = tbf$Black -tbf$Black.sd
+bottoms[bottoms<0]= 0.001 
 title(mylabel)
 
 dev.off() #end pdf 	
