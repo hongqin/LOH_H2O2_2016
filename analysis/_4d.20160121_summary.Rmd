@@ -1,7 +1,7 @@
 ---
-title: "LOH_H2O2_20160121_summary"
+title: "LOH_H2O2_20160223_summary"
 author: "h qin"
-date: "January 21, 2016"
+date: "Feb 23, 2016"
 output: html_document
 ---
 20160121, start to port old R codes into a markdown file. 
@@ -260,5 +260,37 @@ Data consistency check
  ### Cv/Cb or Cb/Cv ~ robustness? I need a positive proxy
  #summary(lm( tb3$Cv.vs.Cb ~ tb3$G ) )  #positive, p=0.20, 
  #summary(lm( tb3$Cb.vs.Cv ~ tb3$G ) )  #negative, p=0.25
+```
+
+(Tg/Tc)/(Cb/Cv)
+
+```{r}
+tb3$TgTc.vs.CbCv =  tb3$Tg.vs.Tc / tb3$Cb.vs.Cv 
+tb3$CbCv.vs.TgTc =  tb3$Cb.vs.Cv / tb3$Tg.vs.Tc 
+
+  pTb = 1: length(tb3[1,])
+ names(pTb) = names(tb3)
+ for( j in c(2:41) ) {
+   #m = lm( tb3a[, j] ~ tb3a$ARLS, na.rm=T)
+   m = lm( tb3[, j] ~ tb3$TgTc.vs.CbCv)
+   #m = lm( tb3a[, j] ~ tb3a$CvMean, na.rm=T)
+   #m = lm( tb3a[, j] ~ tb3a$CbMean, na.rm=T)
+   sm = summary(m)
+   pTb[j] = 1 - pf(sm$fsta[1], sm$fsta[2], sm$fsta[3])
+ }
+ pTb[pTb<0.1]
+ 
+  pTb = 1: length(tb3[1,])
+ names(pTb) = names(tb3)
+ for( j in c(2:41) ) {
+   #m = lm( tb3a[, j] ~ tb3a$ARLS, na.rm=T)
+   m = lm( tb3[, j] ~ tb3$CbCv.vs.TgTc)
+   #m = lm( tb3a[, j] ~ tb3a$CvMean, na.rm=T)
+   #m = lm( tb3a[, j] ~ tb3a$CbMean, na.rm=T)
+   sm = summary(m)
+   pTb[j] = 1 - pf(sm$fsta[1], sm$fsta[2], sm$fsta[3])
+ }
+ pTb[pTb<0.1]
+ 
 ```
 
