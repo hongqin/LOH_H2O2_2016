@@ -315,6 +315,7 @@ plot( tb3$L0.all ~ tb3$TgTc.vs.CbCv, pch=19, col="red",
       xlim = c(-0.05, 4.5), ylim=c(0, 0.3))
 abline(m, col="blue")
 text( tb3$TgTc.vs.CbCv, tb3$L0.all+0.015, tb3$strain)
+text( 3, 0.28, "p=0.004,R2=0.62")
 ```
 
 For comparison to lm(tb3$L0.all ~  tb3$TgTc.vs.CbCv, other similar regressions
