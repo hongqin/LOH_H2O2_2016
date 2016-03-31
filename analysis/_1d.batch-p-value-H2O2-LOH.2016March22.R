@@ -1,6 +1,9 @@
 #batch plot, 2016 Feb 16, testing p-value for 
 #if We can estimate p-value of observed ¾ blacks from ¼ and ½ black distributions. 
-#assuming multinomial distribution 
+# assuming multinomial distribution 
+
+# for some datasets, the 3/4 counts are too low. 
+#
 
 rm=(list=ls())
 setwd("~/github/LOH_H2O2_2016/analysis")
@@ -10,7 +13,7 @@ FileList = list.files( path="../data.H2O2-LOH/");  FileList;
 output = data.frame(FileList)
 output$p_ttest = NA; 
 
-if( debug > 5) {FileList = FileList[1:6]}
+if( debug > 5) {FileList = FileList[1:3]}
 
 for( ii in 1:length(FileList)) {  
   infile = FileList[[ii]] #for list
@@ -31,15 +34,16 @@ for( ii in 1:length(FileList)) {
     }
   }
   
-  #adjust for low-counts
-  tb$Black[tb$Black<=0] = 0.5
-  tb$halfBlack[tb$halfBlack<=0] = 0.5
+  # Remove ZERO counts for 3/4 black analysis, 2016March22
+  tb$Black[tb$Black<=0] = NA
+  tb$halfBlack[tb$halfBlack<=0] = NA
+  tb$quarterBlack[tb$quarterBlack<=0] = NA
+  tb$ThreeQBlack[tb$ThreeQBlack<=0] = NA
   
   tb$H2O2 = tb$H2O2stock/2
   tb$tot = tb$White + tb$Black + tb$halfBlack + tb$quarterBlack + tb$ThreeQBlack + tb$QQBlack + tb$Other
   tb.ori = tb; 
   tb = tb[ ! is.na(tb$White), ]
-  
   
   tb$Dilution = tb$Dilution / tb$Dilution[1]
   
@@ -76,20 +80,21 @@ for( ii in 1:length(FileList)) {
   
   tbf$Black[tbf$Black<0]=NA;  #remove weird experimental data, such as low-lead concentration effect
   
-  # TQB<-tbf$ThreeQBlack
-  # normalized = (TQB-min(TQB))/(max(TQB)-min(TQB)) #Qin does not understand this line. 
-  H0TQB<-tbf$halfBlack*tbf$quarterBlack
-  # normalized2 = (HQB-min(HQB))/(max(HQB)-min(HQB)) #Qin does not understand this line
-  #find the standard error of multiplication
-  #std_HQB<-sqrt(var(HQB)/length(HQB))  #Qin, not following this line? 
+  tryCatch(
+    { 
+      H0TQB<-tbf$halfBlack*tbf$quarterBlack
+      tt = t.test( tbf$ThreeQBlack, H0TQB, pairwise=T, alternative = "greater")
+      print(tt)
+      output$p_ttest[ii] = tt$p.value
+    }, error = function(e) {e}
+  )
   
-  tt = t.test( tbf$ThreeQBlack, H0TQB, pairwise=T, alternative = "greater")
-  print(tt)
-  output$p_ttest[ii] = tt$p.value
-  
-  #pvalue<-t.test(normalized2)$p.value
-  #AllpValues[[length(AllpValues)+1]] = pvalue;
 }
 
 head(output)
+summary(output)
+output$flag = '';
+output$flag = ifelse( output$p_ttest <=0.05, 'signicant', output$flag )
 write.csv(output, "__batch_ttest-threeQBlack.csv")
+library(xlsx)
+write.xlsx(output,"__batch_ttest-threeQBlack.xlsx" )

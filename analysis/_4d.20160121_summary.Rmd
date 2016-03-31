@@ -293,4 +293,34 @@ tb3$CbCv.vs.TgTc =  tb3$Cb.vs.Cv / tb3$Tg.vs.Tc
  pTb[pTb<0.1]
  
 ```
+Plot histogram of TgTc.vs.CbCv  for publication
+```{r}
+
+ 
+```
+
+
+Plot  TgTc.vs.CbCv   CbCv.vs.TgTc ~L0  for publication
+```{r}
+summary(lm(tb3$L0.all ~  tb3$CbCv.vs.TgTc ))
+plot( tb3$L0.all ~ tb3$CbCv.vs.TgTc)
+
+summary(lm(tb3$L0.all ~  tb3$TgTc.vs.CbCv ))
+m = lm(tb3$L0.all ~  tb3$TgTc.vs.CbCv)
+par(font=2) 
+plot( tb3$L0.all ~ tb3$TgTc.vs.CbCv, pch=19, col="red", 
+      ylab = "Better asymmetry <- L0 -> Worse assymetry",
+      xlab = "Weaker suppression <- (Tg/Tc)/(Cb/Cv) -> Stronger suppression",
+      main="Mitotic asymmetry ~ Ability to suppress endogenous oxidative stress",
+      xlim = c(-0.05, 4.5), ylim=c(0, 0.3))
+abline(m, col="blue")
+text( tb3$TgTc.vs.CbCv, tb3$L0.all+0.015, tb3$strain)
+```
+
+For comparison to lm(tb3$L0.all ~  tb3$TgTc.vs.CbCv, other similar regressions
+```{r}
+plot( tb3$L0.all ~ tb3$Tg.vs.Tc)
+plot( tb3$L0.all ~ tb3$Cv.vs.Cb)
+summary(lm(tb3$L0.all ~  tb3$Cv.vs.Cb ))
+```
 
