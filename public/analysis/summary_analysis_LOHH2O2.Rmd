@@ -5,9 +5,6 @@ date: "Spring, 2016"
 output: html_document
 ---
 
-Add figure numbers to the Markdown file
-
-
 ```{r}
 rm( list = ls() );
 setwd("~/github/LOH_H2O2_2016/public/analysis")
@@ -94,7 +91,8 @@ Merge tb and tb2. The merged table is 'tb3'
 ```
 
  
-# Side-by-side bar-plots of Tg/Tc and Cb/Cv
+# Figure 4B. Side-by-side bar-plots of Tg/Tc and Cb/Cv
+
 ```{r}
  mystep=0.2
  my.breaks = seq( 0.2,  round(max( c( tb3$Cb.vs.Cv, tb3$Tg.vs.Tc )) + 0.2, 1) ,by= mystep ); 
@@ -115,7 +113,8 @@ Merge tb and tb2. The merged table is 'tb3'
 ```
 
 
-# Figure 4D.  (Tg/Tc)/(Cb/Cv)  ~ L0
+# Figure 4D. Plot of $(\frac{Tg}{Tc} / \frac{Cb}{Cv})$  ~ L0
+
 
 ```{r}
 tb3$TgTc.vs.CbCv =  tb3$Tg.vs.Tc / tb3$Cb.vs.Cv 
