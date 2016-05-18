@@ -3,7 +3,7 @@
 #YPS163 2011April 13, plot
 
 rm=(list=ls())
-setwd("~/github/LOH_H2O2_2012-master/figures")
+setwd("~/github/LOH_H2O2_2016/figures")
 debug = 0;
 
 FileList = list.files( path="../data.H2O2-LOH/", pattern="101S");  FileList; 
@@ -150,7 +150,7 @@ arrows( tbf$H2O2, (tbf$Black - tbf$Black.sd), tbf$H2O2, (tbf$Black + tbf$Black.s
 lines( fit.b ~ t2, lty=1, col='black');
 points ( Cb,  ( b.max/2 + b.min/2), pch=15, col="red", cex=1.2);
 arrows( Cb, (b.max/2 + b.min/2), Cb, 1E-8, lty=2, col="red", length=0.1);
-mtext( "Cb",side=1,at=c(Cb*1.2), line=-1, cex=0.8 );
+mtext( "Cb",side=1,at=c(Cb*1.1), line=-1, cex=0.8 );
 box()
 
 
@@ -187,17 +187,19 @@ Cb0.5 = fm.b0.5$coef[1]
 #par(new=T)
 par(mar=c(5,5,0,1))
 #plot( tbf$halfBlack ~ tbf$H2O2, pch=16, xlab='H2O2',ylab="half-black", col='red')
-plot( b0.5 ~ t, pch=16, xlab='H2O2',ylab="Half-black", col='black', log='y', ylim=c(0.8E-3,0.15), axes=F)
+plot( b0.5 ~ t, pch=16, col="green",xlab='H2O2',ylab="Half-black", log='y', ylim=c(0.8E-3,0.15), axes=F)
 axis( 1, at = pretty(t), labels=T, tcl=0.3);
 #axis( 2, at = c(0.001,0.01,0.05,0.1), labels=T, tcl=0.2, las=2);
 axis( 2, at = c(0.001,0.01,0.05,0.1), labels=c(0.001,0.01,0.05,0.1), tcl=0.2, las=2);
 box()
-lines(fit.b0.5 ~ t2, col='black')
+lines(fit.b0.5 ~ t2, col='green')
 arrows( tbf$H2O2, (tbf$halfBlack - tbf$halfBlack.sd), tbf$H2O2, (tbf$halfBlack + tbf$halfBlack.sd),
         length=0.1, angle=90,code=3, lty=2, lwd=1 );
 points ( Cb0.5,  ( b0.5.max/2 + b0.5.min/2), pch=15, col="red", cex=1.2);
 arrows( Cb0.5, (b0.5.max/2 + b0.5.min/2), Cb0.5, 1E-8, lty=2, col="red", length=0.1);
-mtext( "Cb0.5",side=1,at=c(Cb*1.2),line=-1, cex=0.8 );
+mtext( "Cb0.5",side=1,at=c(Cb0.5*1.8),line=-1, cex=0.8 );
+
+
 
     
 dev.off()

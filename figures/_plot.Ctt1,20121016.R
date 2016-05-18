@@ -3,12 +3,12 @@
 #YPS163 2011April 13, plot
 
 rm=(list=ls())
-setwd("~/github/LOH_H2O2_2012-master/figures")
+setwd("~/github/LOH_H2O2_2016/figures")
 debug = 0;
 
-FileList = list.files( path="../data.H2O2-LOH/", pattern="M1-2");  FileList; 
-filename = 'M1-2,20110422.H2O2onLOH.csv';
-mylabel = 'M1-2 2011 April 22'
+FileList = list.files( path="../data.H2O2-LOH/", pattern="Ctt1");  FileList; 
+filename = 'ctt1,20121016,H2O2LOH.csv';
+mylabel = 'Ctt1 2016 March 03'
 
 fullFileName = paste('../data.H2O2-LOH/',filename, sep='');
 
@@ -122,7 +122,7 @@ plot( b ~ t)
 
 #### specificy the layout
 #pdf(paste("_20131210", filename, "pdf", sep="."), width=6,height=9); 
-pdf(paste("_20131211", filename, "pdf", sep="."), width=5,height=8); 
+pdf(paste("_20160303", filename, "pdf", sep="."), width=5,height=8); 
 #tiff(paste("_20131210", filename, "tif", sep="."), width=240,height=500); 
 
 mat = matrix( seq(1,3), nrow=3, ncol= 1 ); 
