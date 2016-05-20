@@ -7,7 +7,7 @@ output: html_document
 
 ```{r}
 rm( list = ls() );
-setwd("~/github/LOH_H2O2_2016/public/analysis")
+#setwd("~/github/LOH_H2O2_2016/public/analysis")
 ```
 
 # Load data from two previous studies. 
