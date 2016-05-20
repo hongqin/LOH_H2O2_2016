@@ -1,14 +1,12 @@
 # 2013 Dec 10, use layout and mar() to do layered plots (not overlays)
 
-#YPS163 2011April 13, plot
-
 rm=(list=ls())
 setwd("~/github/LOH_H2O2_2016/figures")
 debug = 0;
 
 FileList = list.files( path="../data.H2O2-LOH/", pattern="Ctt1");  FileList; 
 filename = 'ctt1,20121016,H2O2LOH.csv';
-mylabel = 'Ctt1 2016 March 03'
+mylabel = 'Ctt1 2012 Oct 16'
 
 fullFileName = paste('../data.H2O2-LOH/',filename, sep='');
 
@@ -81,8 +79,6 @@ head(tbf)
 plot(tbf$tot.sd ~ tbf$H2O2)
 
 
-#It is not clear whether color figures would be charged more or not by Aging Cell. 
-
 #### define functions
 logistical.viability <- function( T, w, t ) { ret <- 1 /( 1 + ( t / T )^ w );  }
 logistical.black     <- function(b.max, b.min, T, w, t ) { ret <- b.max - (b.max - b.min) /( 1 + ( t / T )^ w );  }
@@ -93,7 +89,7 @@ require(nlme)
 t= tbf$H2O2; s= tbf$s; b = tbf$Black
 
 model1 = function(v,w) {  1/( 1 + ( t / v )^ w ) }  
-fm.s <- gnls( s ~ model1(v,w) , start = list( v = 0.02, w=2)  );
+fm.s <- gnls( s ~ model1(v,w) , start = list( v = 0.02, w=1.5)  );
 t2 = seq(0,1,by=0.001)
 fit.s = logistical.viability ( fm.s$coefficients[1], fm.s$coefficients[2], t2 );
 Cv = fm.s$coefficients[1]
@@ -110,7 +106,7 @@ modelBlack1 = function(v) { b.max - (b.max-b.min)/(1 + (t/v)^0.4) }
 #fm.b <- gnls( b ~ modelBlack1(v) , start = list( v = 0.008) ); fm.b
 #fit.b = logistical.black(b.max, b.min, fm.b$coef[1], 2, t2 )
 
-fm.b <- gnls( b ~ modelBlack(v,w) , start = list( v = 0.01, w= 2.5  )); fm.b
+fm.b <- gnls( b ~ modelBlack(v,w) , start = list( v = 0.01, w= 1.5  )); fm.b
 fit.b = logistical.black(b.max, b.min, fm.b$coef[1], fm.b$coef[2], t2 )
 Cb = fm.b$coef[1]
 
@@ -169,7 +165,7 @@ b0.5.min = sum(b0.5.tmp[1])*1.3
 b0.5.tmp = rev(b0.5.tmp); 
 b0.5.max = sum(b0.5.tmp[1:3])/3 #account for volatity
 
-modelBlack0.5B = function(v) { b0.5.max - (b0.5.max-b0.5.min)/(1 + (t/v)^2) }
+modelBlack0.5B = function(v) { b0.5.max - (b0.5.max-b0.5.min)/(1 + (t/v)^1.5) }
 fm.b0.5 <- gnls( b0.5 ~ modelBlack0.5B(v) , start = list( v = 0.008) ); fm.b0.5
 fit.b0.5 = logistical.black(b0.5.max, b0.5.min, fm.b0.5$coef[1], 2, t2 )
 
