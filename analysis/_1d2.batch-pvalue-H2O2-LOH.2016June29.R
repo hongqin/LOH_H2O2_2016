@@ -83,7 +83,7 @@ for( ii in 1:length(FileList)) {
   
   tryCatch(
     { 
-      sub = tbf[, c("halfBlack", "quarterBlack", "ThreeQBlack")]
+      sub = tbf[, c("tot", "halfBlack", "quarterBlack", "ThreeQBlack")]
       print(sub)
       write.csv(sub, file=paste("../tmp/_tbf_", infile,sep=''), row.names = F)
     }, error = function(e) {e}
