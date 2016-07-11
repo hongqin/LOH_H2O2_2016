@@ -1,3 +1,6 @@
+#July 7, fisher exact test, bonferroni correction. 
+# for fisher exact test, I use the original counts (before normalization)
+
 #June 29, 2016. Export P(1/2), P(1/4), P(3/4) for Weibiao Wu. 
 
 #batch plot, 2016 Feb 16, testing p-value for 
@@ -12,7 +15,7 @@ debug = 0;
 
 FileList = list.files( path="../data.H2O2-LOH/");  FileList; 
 output = data.frame(FileList)
-output$p_ttest = NA; 
+output$p_fishertest = NA; 
 
 if( debug > 5) {FileList = FileList[1:3]}
 
@@ -35,12 +38,6 @@ for( ii in 1:length(FileList)) {
     }
   }
   
-  # Remove ZERO counts for 3/4 black analysis, 2016March22
-  tb$Black[tb$Black<=0] = NA
-  tb$halfBlack[tb$halfBlack<=0] = NA
-  tb$quarterBlack[tb$quarterBlack<=0] = NA
-  tb$ThreeQBlack[tb$ThreeQBlack<=0] = NA
-  
   tb$H2O2 = tb$H2O2stock/2
   tb$tot = tb$White + tb$Black + tb$halfBlack + tb$quarterBlack + tb$ThreeQBlack + tb$QQBlack + tb$Other
   tb.ori = tb; 
@@ -48,46 +45,62 @@ for( ii in 1:length(FileList)) {
   
   tb$Dilution = tb$Dilution / tb$Dilution[1]
   
-  ######## normalize all data
-  mycolumns = c("White","Black","halfBlack", "quarterBlack","ThreeQBlack", "QQBlack", "Other","tot"); 
-  for ( j in mycolumns) {
-    tb[,j] = tb[,j] * tb$Dilution
-  }
-  
-  ####### find out means
+  ####### merge results by [H2O2] for 3/4LOH test
   H2O2 = sort(unique( tb$H2O2))
-  #s = H2O2
-  tbm = data.frame(cbind(H2O2))
+  tbMerge = data.frame(cbind(H2O2))
   for ( i in 1:length(H2O2)) {
     c = H2O2[i]
     tmp = tb[ tb$H2O2==c, ]	
-    tbm$tot[i] = mean(tmp$tot, na.rm=T)
-    tbm$White[i] = mean(tmp$White, na.rm=T)
-    tbm$Black[i] = mean(tmp$Black, na.rm=T) 
-    tbm$halfBlack[i] = mean(tmp$halfBlack, na.rm=T)  
-    tbm$quarterBlack[i] = mean(tmp$quarterBlack, na.rm=T)
-    tbm$ThreeQBlack[i] = mean(tmp$ThreeQBlack, na.rm=T)  
-    tbm$QQBlack[i] = mean(tmp$QQBlack, na.rm=T);  
+    tbMerge$tot[i] = sum(tmp$tot, na.rm=T)
+    tbMerge$White[i] = sum(tmp$White, na.rm=T)
+    tbMerge$Black[i] = sum(tmp$Black, na.rm=T) 
+    tbMerge$halfBlack[i] = sum(tmp$halfBlack, na.rm=T)  
+    tbMerge$quarterBlack[i] = sum(tmp$quarterBlack, na.rm=T)
+    tbMerge$ThreeQBlack[i] = sum(tmp$ThreeQBlack, na.rm=T)  
+    # tbMerge$QQBlack[i] = sum(tmp$QQBlack, na.rm=T);  
+  } 
+  
+  tbMerge$p = NA; 
+  
+  for( i in 1:length(tbMerge[,1])) {
+   if ( (tbMerge$halfBlack[i] >=3) & (tbMerge$quarterBlack[i]>=3) & (tbMerge$ThreeQBlack[i]>=3)) {
+    # do fisher exact test
+    my.tot = tbMerge$tot[i]; 
+    my.P.half= tbMerge$quarterBlack[i];
+    my.P.quarter = tbMerge$quarterBlack[i];
+    my.P.threeQ = tbMerge$ThreeQBlack[i];
+    my.Other = my.tot - (my.P.half + my.P.quarter + my.P.threeQ)
+    mytab = matrix(, nrow=2, ncol=2)
+    mytab[1,1] = my.P.threeQ;     mytab[1,2] = my.P.half;  #Half True
+    mytab[2,1] = my.P.quarter;    mytab[2,2] = my.Other    #Half False
+    #1/4 True                       1/4 False
+    tryCatch(
+      {
+        tmp = fisher.test(mytab);
+        tbMerge$p[i] = tmp$p.value
+      }, error = function(e) {e}
+    )
+   }
   }
   
-  tbm = tbm[tbm$tot>1, ] #remove plates with zero colonies
+  tbMerge = tbMerge[, c("H2O2", "tot", "halfBlack", "quarterBlack", "ThreeQBlack", "p")]
   
-  ###### calculate fractions
-  tbf = tbm; 
-  tbf$s = tbf$tot / max(tbf$tot)
-  for ( j in 3:8) {
-    tbf[, j] = tbf[,j] / tbf$tot
-  }
+  # Bonferronie correction
+  alpha = 0.05 #the significant level
+  tmp = tbMerge$p; tmp = tmp[!is.na(tmp)]; num_of_trials = length( tmp )
+  tbMerge$call = ifelse ( tbMerge$p > alpha/num_of_trials, 'nonsignicant', 'significant')
   
-  tbf$Black[tbf$Black<0]=NA;  #remove weird experimental data, such as low-lead concentration effect
+  outfile = paste("output.fisher.test/_fisher_results_", infile, sep='') 
+  print (paste("write outfile: ", outfile))
+  write.csv(tbMerge, outfile)
+
+  # Now, summaryize the Fisher test results
+  # I will describe the range of the p-values, followed by Bonferroni corrections. 
   
-  tryCatch(
-    { 
-      sub = tbf[, c("tot", "halfBlack", "quarterBlack", "ThreeQBlack")]
-      print(sub)
-      write.csv(sub, file=paste("../tmp/_tbf_", infile,sep=''), row.names = F)
-    }, error = function(e) {e}
-  )
   
-}
+}#for loop
+
+
+
+
 
