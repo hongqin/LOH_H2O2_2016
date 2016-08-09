@@ -206,15 +206,16 @@ Data consistency check
  mystep=0.2
  my.breaks = seq( 0.2,  round(max( c( tb3$Cb.vs.Cv, tb3$Tg.vs.Tc )) + 0.2, 1) ,by= mystep ); 
 # my.breaks3 = seq( 0.1,  round(max( c( tb3$Cb.vs.Cv, tb$Tg.vs.Tc ) + 0.1, 1)) ,by= mystep ); 
- h.H2O2  <- hist( tb3$Cb.vs.Cv, br= my.breaks, xlab = "Cb/Cv", ylab = "relative density", freq=F ) ; 
+ h.H2O2  <- hist( tb3$Cb.vs.Cv, br= my.breaks, xlab = "Cb/Cv", ylab = "relative density", freq = TRUE ) ; 
 # h.H2O2  <- hist( tb3$Cb.vs.Cv, br= 10, xlab = "Cb/Cv", ylab = "relative density", freq=F ) ; 
  
- h.aging <- hist(tb$Tg.vs.Tc, br= my.breaks, xlab = "Tg/Tc",  ylab = "relative density", freq=F ) ;
+ h.aging <- hist(tb$Tg.vs.Tc, br= my.breaks, xlab = "Tg/Tc",  ylab = "relative density", freq = TRUE ) ;
  
  #generate the comparison table
- bins <-  data.frame( rbind(h.H2O2$density,h.aging$density) )  ;
-# bins3 <-  data.frame( rbind(h.H2O2$density,h.aging$density, h.H2O2Mean$density) )  ;
- my.mids = my.breaks[-length(my.breaks)] + mystep/2
+# bins <-  data.frame( rbind(h.H2O2$density,h.aging$density) )  ; 20160721
+ bins <-  data.frame( rbind(h.H2O2$counts,h.aging$counts) )  ; #20160721
+
+  my.mids = my.breaks[-length(my.breaks)] + mystep/2
  #my.mids
  names( bins ) <- my.mids
  row.names(bins) <- c( "H2O2", "Chronological Aging" )
@@ -224,11 +225,15 @@ Data consistency check
  
  #pdf("plots/Figure_sideBYside20131209.pdf", width=8, height=5)
 # tiff("plots/Figure_sideBYside20131209.tif", width=480, height=480)
- barplot( as.matrix(bins), beside=T, col=c("black","gray"), ylab="Relative Frequency", xlab="Ratios",
+ barplot( as.matrix(bins), beside=T, col=c("black","gray"), ylab="Counts", xlab="Ratios",
           legend= c( "Cb/Cv H2O2", "Tg/Tc CLS" )  );
  title(main="Contrasting LOH patterns in CLS and H2O2 treatment" )
 # dev.off(); 
 
+# Does probablity density x bin_width sum to 1? 
+sum(h.H2O2$density)* 0.2 
+sum(h.aging$density)*0.2
+  
  ks.test(tb3$Cb.vs.Cv, tb3$Tg.vs.Tc) #p=0.031
  
   

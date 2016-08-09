@@ -1,5 +1,7 @@
-#July 7, fisher exact test, bonferroni correction. 
-# for fisher exact test, I use the original counts (before normalization)
+# July 13, 2016. I need to tally the significance count of each experiment. 
+
+# July 7 2016, fisher exact test, bonferroni correction. 
+# for fisher exact test, I merged the original counts by [H2O2] (before normalization)
 
 #June 29, 2016. Export P(1/2), P(1/4), P(3/4) for Weibiao Wu. 
 
@@ -14,11 +16,11 @@ setwd("~/github/LOH_H2O2_2016/analysis")
 debug = 0;
 
 FileList = list.files( path="../data.H2O2-LOH/");  FileList; 
-output = data.frame(FileList)
-output$p_fishertest = NA; 
 
 if( debug > 5) {FileList = FileList[1:3]}
 
+### Do fisher exact test for every file (experiment).
+### Save the output files as output.fisher.test/*csv
 for( ii in 1:length(FileList)) {  
   infile = FileList[[ii]] #for list
   print( paste("ii= ", ii ))
@@ -100,7 +102,24 @@ for( ii in 1:length(FileList)) {
   
 }#for loop
 
+### Summarize the fisher exact test results in a single file
+### Save the output in output/
+FileList = list.files( path="output.fisher.test");  FileList; 
 
+output = data.frame(FileList)
+output$significant_fishertest = NA; 
+output$nonsignificant_fishertest = NA; 
+for( i in  1:length(output[,1])){
+  fullFileName = paste( 'output.fisher.test/', output$FileList[i], sep='');
+  tb = read.csv(fullFileName)
+  tryCatch(
+    { 
+     tmp = table(tb$call)
+     output$significant_fishertest[i] = ifelse(is.na(tmp['significant']), 0, tmp['significant'] )
+     output$nonsignificant_fishertest[i] = ifelse(is.na(tmp['nonsignicant'])  , 0, tmp['nonsignicant'])
+    }, error = function(e) {e}
+  )
+}
 
-
-
+output$FileList=gsub("_fisher_results_", '', output$FileList)
+write.csv(output,"fisher_tests_summary_by_experiments2016July19.csv", row.names = FALSE )
