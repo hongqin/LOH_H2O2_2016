@@ -1,4 +1,4 @@
-# July 13, 2016. I need to tally the significance count of each experiment. 
+# July 19, 2016. I tallied the significance count of each experiment. 
 
 # July 7 2016, fisher exact test, bonferroni correction. 
 # for fisher exact test, I merged the original counts by [H2O2] (before normalization)
@@ -47,7 +47,7 @@ for( ii in 1:length(FileList)) {
   
   tb$Dilution = tb$Dilution / tb$Dilution[1]
   
-  ####### merge results by [H2O2] for 3/4LOH test
+  ####### merge results by [H2O2] for 3/4 LOH test
   H2O2 = sort(unique( tb$H2O2))
   tbMerge = data.frame(cbind(H2O2))
   for ( i in 1:length(H2O2)) {
@@ -96,14 +96,13 @@ for( ii in 1:length(FileList)) {
   print (paste("write outfile: ", outfile))
   write.csv(tbMerge, outfile)
 
-  # Now, summaryize the Fisher test results
-  # I will describe the range of the p-values, followed by Bonferroni corrections. 
-  
   
 }#for loop
 
-### Summarize the fisher exact test results in a single file
+## Now, summaryize the Fisher test resul in a single file
+## I will describe the range of the p-values, followed by Bonferroni corrections. 
 ### Save the output in output/
+
 FileList = list.files( path="output.fisher.test");  FileList; 
 
 output = data.frame(FileList)
